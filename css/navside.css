@@ -1,0 +1,280 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Oswald', sans-serif;
+}
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 80px;
+  background-color: white;
+  padding: 0.4rem 0.8rem;
+  transition: all 0.5s ease;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.sidebar.active {
+  width: 250px;
+}
+
+.sidebar #btn {
+  position: absolute;
+  color: black;
+  top: .4rem;
+  left: 50%;
+  font-size: 1.2rem;
+  line-height: 50px;
+  transform: translateX(-50%);
+  cursor: pointer;
+}
+
+.sidebar.active #btn {
+  left: 90%;
+}
+
+.sidebar .top .logo {
+  color: #1C387C;
+  display: flex;
+  font-display: inherit;
+  height: 50px;
+  width: 100%;
+  align-items: center;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.sidebar.active .top .logo{
+  opacity: 1;
+  font-weight: bold;
+}
+
+.top .logo i {
+  font-size: 2rem;
+  margin-right: 5px;
+}
+
+.bold{
+  font-weight: 600;
+}
+
+.sidebar p {
+  opacity: 0;
+}
+.sidebar.active p {
+  opacity: 1;
+}
+
+.sidebar ul li {
+  position: relative;
+  list-style-type: none;
+  height: 50px;
+  width: 90%;
+  margin: 0.8rem auto;
+  line-height: 50px;
+  text-decoration: none;
+}
+
+.sidebar ul li a {
+  color: #1C387C;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  border-radius: 0.8rem;
+}
+
+.sidebar ul li a:hover {
+  background-color: #1C387C;
+  color: white;
+}
+
+.sidebar ul li a i {
+  min-width: 50px;
+  text-align: center;
+  height: 50x;
+  border-radius: 12px;
+  line-height: 50px;
+}
+
+.sidebar .nav-item {
+  opacity: 0;
+
+}
+
+.sidebar.active .nav-item {
+  opacity: 1;
+}
+
+ul {
+  padding-left: 0;
+}
+
+.sidebar ul li .tooltip1{
+  position:absolute;
+  left:120px;
+  top: 50%;
+  transform:  translate(-50%, -50%);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  border-radius: .6rem;
+  padding: .4rem 1rem;
+  line-height: 1.8;
+  z-index: 20;
+  opacity: 0;
+  background-color: white;
+}
+
+.sidebar ul li:hover .tooltip1 {
+  opacity: 1;
+}
+
+.sidebar.active ul li .tooltip1 {
+  display: none;
+}
+
+/* .main-content {
+  position: relative; 
+  min-height: 100vh;
+  top: 0;
+  left: 80px;
+  transition: all 0.5 ease;
+  padding: 3rem;
+  width: calc(100% - 80px);
+} */
+
+.btn1 {
+  color: white;
+  background-color: #1C387C;
+  width: 26em;
+  margin-top: 1em;
+  border: 5px;
+}
+
+.btn1:hover {
+  color: #1C387C;
+  background-color: white;
+  border-color: #1C387C;
+}
+
+.header-navbar1 {
+  background-color: #1C387C;
+  color: white;
+  height: 3rem;
+}
+
+.header-navbar1 i {
+  color: white;
+  justify-content: space-between;
+}
+
+.search {
+  width: 100%;
+}
+
+.btn-secondary1 {
+  background-color: #1C387C;
+  color: white;
+  align-items: flex;
+}
+
+.btn-secondary2 {
+  background-color: #1C387C;
+  color: white;
+  margin-bottom: 1em;
+}
+.btn-outline-danger {
+  margin-bottom: 1em;
+}
+.btn-secondary1 .btn-secondary2 :hover {
+  color: #1C387C;
+  background-color: white;
+  border-color: #1C387C;
+}
+
+.table-inventory {
+  overflow-y:scroll;
+  height:65vh;
+  display:block;
+  width: 100%;
+}
+.dash-scroll {
+  overflow-y:scroll;
+  height:70vh;
+  width: 100%;
+}
+.dash-scroll::-webkit-scrollbar {
+  width: 12px; /* Width of the scrollbar */
+}
+
+.dash-scroll::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 6px;
+}
+
+.dash-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+
+.dash-scroll::-webkit-scrollbar-thumb:active {
+  background-color: #333;
+}
+
+
+
+.header-con {
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 1em;
+  margin-top: 1em;
+}
+.header-con1 {
+  background-color: #1C387C;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 1em;
+  margin-top: 1em;
+  color: white;
+}
+
+.sidebar ul li a.nav-item1.active {
+  background-color: #1C387C;
+  color: white; 
+  font-weight: bold;
+}
+
+.sidebar ul li a.nav-item1.active:hover {
+  background-color: #1C387C;
+  
+}
+
+@media (max-width: 768px) {
+  .pad{
+    padding-left: 80px;
+  }
+}
+
+.thead-bg {
+  background-color: #1C387C;
+  color: white;
+}
+
+.sidebar .dropdown-toggle::after {
+  opacity: 0;
+}
+.sidebar.active .dropdown-toggle::after {
+  opacity: 1;
+}
+
+.dropdown-menu {
+  min-width: 12.5rem;
+}
+
+.dropdown-sales {
+  z-index: 1;
+}
+footer .footer1 {
+  background-color: #1C387C;
+  color: white;
+  height: 1.5rem;
+}
