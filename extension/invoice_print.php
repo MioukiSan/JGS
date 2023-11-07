@@ -36,6 +36,12 @@ require_once '../includes/db_conn_in_session.php';
         $width = 28;
         $height = 9.5;
 
+        // $image_path = "../images/sun.png";
+        // $x = 10;
+        // $y = 18;
+        // $width = 28;
+        // $height = 9.5;
+
         $pdf = new FPDF('P', 'mm', array(112, 200));
         $pdf->AddPage();
         
@@ -50,8 +56,8 @@ require_once '../includes/db_conn_in_session.php';
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(69, 8, '', 0);
         $pdf->SetTextColor(255, 0, 0);
-        $pdf->SetFont('Courier', 'B', 12);
-        $pdf->Cell(59, 8, $transaction_code, 0);
+        $pdf->SetFont('Courier', 'B', 10);
+        $pdf->Cell(5, 8, $transaction_code);
         $pdf->SetTextColor(0, 0, 0);
         $pdf->Ln(10);
 
@@ -59,7 +65,7 @@ require_once '../includes/db_conn_in_session.php';
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(55, 5, 'Sold to: ' . $customer_name, 0);
         $pdf->SetFont('Arial', '', 9);
-        $pdf->Cell(2, 5, 'Date: ' . $sale_date . 0);
+        $pdf->Cell(2, 5, 'Date: ' . '   ' . $sale_date);
         $pdf->Ln(4);
 
 
@@ -86,7 +92,7 @@ require_once '../includes/db_conn_in_session.php';
         $pdf->SetFont('Arial', '', 10);
         $total = 0;
 
-        $item_sql = "SELECT p.item_name, s.product_qty, s.total_amt, p.item_details, s.product_id, p.retail_price
+        $item_sql = "SELECT p.item_name, s.product_qty, s.total_amt, p.acronym, s.product_id, p.retail_price, p.product_unit
             FROM sales s
             JOIN products p ON s.product_id = p.product_id
             WHERE s.sales_transaction_code = ?";
@@ -94,17 +100,17 @@ require_once '../includes/db_conn_in_session.php';
 
             foreach ($result_item as $item) {
               $qty = $item['product_qty'];
-              $item_id = $item['product_id'];
+              $unit = $item['product_unit'];
               $item_name = $item['item_name'];
-              $item_details = $item['item_details'];
+              $acronym = $item['acronym'];
               $retail_price = $item['retail_price'];
               $total_amt = $item['total_amt'];
             
             $pdf->Cell(9, 5, $qty, 1);
-            $pdf->Cell(10, 5, $item_id, 1);
-            $pdf->Cell(32, 5, $item_name . $item_details, 1);
-            $pdf->Cell(21   , 5, 'Php' . number_format($retail_price, 2), 1);
-            $pdf->Cell(21   , 5, 'Php' . number_format($total_amt, 2), 1);
+            $pdf->Cell(10, 5, $unit, 1);
+            $pdf->Cell(32, 5, $acronym, 1);
+            $pdf->Cell(21   , 5, 'Php' . number_format($retail_price, 2), 1, 0, 'R');
+            $pdf->Cell(21   , 5, 'Php' . number_format($total_amt, 2), 1, 0, 'R');
             $pdf->Ln();
             
             $total += $total_amt;
@@ -175,21 +181,37 @@ require_once '../includes/db_conn_in_session.php';
         // Total
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(72, 5, '                                  Total Amount Due', 1);
-        $pdf->Cell(21, 5, 'Php' . number_format($total, 2), 1);
-        $pdf->Ln(15);
-
-
-        $pdf->SetFont('Arial', '', 7);
-        $pdf->Cell(0, 0, '____________________________', 0, 1, 'R');
-        $pdf->Cell(0, 0, $username . '-' . $usertype  , 0, 1, 'R');
-        $pdf->Cell(0, 7, 'Cashier/Authorized Representative', 0, 1, 'R');
+        $pdf->Cell(21, 5, 'Php' . number_format($total, 2), 1, 0, 'R');
         $pdf->Ln(10);
+
+        $pdf->SetFont('Arial', '' , 5);
+        $pdf->Cell(0, 0, '25 Bklts. (50x3) 1251-2500');
+        $pdf->Ln();
+
+        $pdf->SetFont('Arial', '' , 5);
+        $pdf->Cell(0, 4, 'BIR Authority: to Print No. 067AU20220000005303', 0);
+        $pdf->Ln();
+        
+        $pdf->SetFont('Arial', '' , 5);
+        $pdf->Cell(0, 0, 'Date Issued: 10-05-2022');
+        $pdf->Ln();
+
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->Cell(0, 5, 'TRIPLE J Printing Press, Leg. City                             ________________________________');
+        $pdf->Cell(-8, 5, '' . $username . '-' . $usertype  , 0, 1, 'R');
+        $pdf->Cell(0, 0, 'TIN: 144-888-113-000 T (052) 201-9722                          Cashier/Authorized Representative');
+        $pdf->Ln(5);
+
+        $pdf->SetFont('Arial', '' , 5);
+        $pdf->Cell(0, 0, 'Printers Apcreditation No. 067MP20190000000003 Date Issued: 01-23-2019
+        Expiry Date: 01-23-2024');
+        $pdf->Ln();
         //lines
         $pdf->Line(74, 31.6, 103, 31.6);
         $pdf->Line(21, 31.6, 65, 31.6);
 
         $pdf->Line(17, 35.6, 65, 35.6);
-        $pdf->Line(75, 35.6, 103, 35.6);
+        $pdf->Line(88, 35.6, 103, 35.6);
 
         $pdf->Line(22, 39.6, 65, 39.6);
         $pdf->Line(86, 39.6, 103, 39.6);

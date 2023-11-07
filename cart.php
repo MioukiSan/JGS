@@ -83,7 +83,7 @@
                             <tr>
                                 <td><form action="" method="POST">   
                                         <input type="hidden" name="cart_id" value="<?php echo $row['cart_id'];?>">
-                                        <button type="submit" class="btn" name="delete-cart"><i class='bx bx-minus-circle'></i></button>
+                                        <button type="submit" class="btn btn-sm" name="delete-cart"><i class='bx bx-minus-circle'></i></button>
                                     </form>
                                 </td>
                                 <td><?php echo $row['product_name']; ?></td>

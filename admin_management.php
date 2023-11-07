@@ -138,7 +138,7 @@
         if($n_status == 'Absent'){
             $updateQuery = "UPDATE attendance SET attendance_status = 'Present' WHERE employee_id = '$employee_id' AND date = '$datee'";
         }else{
-            $updateQuery = "UPDATE attendance SET attendance_status = 'Absent' WHERE employee_id = '$employee_id' AND date = '$datee'";
+            $updateQuery = "UPDATE attendance SET attendance_status = 'Absent', salary = NULL WHERE employee_id = '$employee_id' AND date = '$datee'";
         }
         if (mysqli_query($conn, $updateQuery)) {
             // Redirect to a success page with a message
@@ -151,6 +151,86 @@
             exit();
         }
     }
+    if (isset($_POST['halfday']) || isset($_POST['whole'])) {
+        // Get data from the POST request
+        $date = $_POST['date'];
+        $id = $_POST['employee_id'];
+        if (isset($_POST['halfday'])) {
+            // Query to fetch base salary of the employee
+            $sql_sl = "SELECT base_salary FROM employee_management WHERE employee_id = '$id'";
+            $res = mysqli_query($conn, $sql_sl);
+    
+            if ($res) {
+                $employeeData = mysqli_fetch_assoc($res);
+                $base = $employeeData['base_salary'];
+    
+                // Assuming 'half' represents half of the base salary
+                $half_base = $base / 2;
+    
+                // Construct the SQL query to update the salary for a half-day
+                $sqlUpdate = "UPDATE attendance SET salary = '$half_base' WHERE employee_id = '$id' AND date = '$date'";
+    
+                // Perform the SQL update for half-day
+                $result = mysqli_query($conn, $sqlUpdate);
+    
+                if ($result) {
+                    // Update for half-day was successful
+                    echo "Half-day salary updated successfully!";
+                } else {
+                    // Update for half-day failed
+                    echo "Error: " . mysqli_error($conn);
+                }
+            } else {
+                // Query to fetch base salary failed
+                echo "Error: " . mysqli_error($conn);
+            }
+        }
+        if (isset($_POST['whole'])) {
+            // Query to fetch base salary of the employee
+            $sql_sl = "SELECT base_salary FROM employee_management WHERE employee_id = '$id'";
+            $res = mysqli_query($conn, $sql_sl);
+    
+            if ($res) {
+                $employeeData = mysqli_fetch_assoc($res);
+                $base = $employeeData['base_salary'];
+    
+                // Construct the SQL query to update salary in the attendance table for a full day
+                $sqlUpdate = "UPDATE attendance SET salary = '$base' WHERE employee_id = '$id' AND date = '$date'";
+    
+                // Perform the SQL update for a full day
+                $result = mysqli_query($conn, $sqlUpdate);
+    
+                if ($result) {
+                    // Update for a full day was successful
+                    echo "Salary updated successfully!";
+                } else {
+                    // Update for a full day failed
+                    echo "Error: " . mysqli_error($conn);
+                }
+            } else {
+                // Query to fetch base salary failed
+                echo "Error: " . mysqli_error($conn);
+            }
+        }
+    }
+    if (isset($_POST['salary_submit'])) {
+        $employee_id = $_POST['employee_id'];
+        $date = $_POST['date'];
+        $custom_salary = $_POST['custom_salary'];
+        if (!is_numeric($custom_salary)) {
+            echo "Please enter a valid number for the custom salary.";
+            exit; // Stop further execution if the input is invalid
+        }
+        $sqlUpdate = "UPDATE attendance SET salary = '$custom_salary' WHERE employee_id = '$employee_id' AND date = '$date'";
+    
+        $result = mysqli_query($conn, $sqlUpdate);
+    
+        if ($result) {
+            echo "Custom salary updated successfully!";
+        } else {
+            echo "Error updating custom salary: " . mysqli_error($conn);
+        }
+    }    
 ?>
 
 <!DOCTYPE html>
@@ -372,10 +452,41 @@
                             <?php else:
                                 $attendance = mysqli_fetch_assoc($result);
                                 $attendanceStatus = $attendance['attendance_status'];
-
+                                $salary = $attendance['salary'];
                                 $color = ($attendanceStatus == 'Absent') ? 'red' : 'green';
+
+                                if($salary === NULL && $attendanceStatus !== 'Absent'){
                          ?> 
-                         <button type='button' class='btn mb-2' name='status' data-bs-toggle="modal" data-bs-target="#<?php echo $employee_ids; ?>Modal">
+                        <form action="" method="POST">
+                            <input type='hidden' name='date' value='<?php echo $rd; ?>'>
+                            <input type='hidden' name='employee_id' value='<?php echo $employee_ids; ?>'>
+                            <button type="submit" name="halfday" class="btn btn-outline-warning">Half Day</button>
+                            <button type="submit" name="whole" class="btn btn-outline-success">Whole Day</button>
+                        </form>
+                        <?php }else{ ?>
+                            <p>Today's Salary:  <b><i><?php echo CURRENCY . number_format($attendance['salary'], 2) ?></i></b></p>
+                        <?php } if($attendanceStatus === 'Present'){ ?>
+                        <button type="button" name="customsalary" class="btn btn-outline-danger mt-3" data-bs-toggle="modal" data-bs-target="#<?php echo $employee_ids; ?>customsalary">Custom</button>
+                        <div class="modal fade" id="<?php echo $employee_ids; ?>customsalary" tabindex="-1" aria-labelledby="custom_salary" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="custom-salary">Custom Salary</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form action="" method="POST">
+                                            <input type='hidden' name='employee_id' value='<?php echo $employee_ids; ?>'>
+                                            <input type='hidden' name='date' value='<?php echo $rd; ?>'>
+                                            <input type="text" name="custom_salary" class="form-control form-control-sm mb-2">
+                                            <button type="submit" name="salary_submit" class="btn btn-secondary">Submit</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php }else{}?>
+                        <button type='button' class='btn mb-2' name='status' data-bs-toggle="modal" data-bs-target="#<?php echo $employee_ids; ?>Modal">
                             Change Status
                         </button>
                         <div class="modal fade" id="<?php echo $employee_ids; ?>Modal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">

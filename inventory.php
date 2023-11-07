@@ -46,6 +46,8 @@
         $retail_price = $_POST['retail_price'];
         $item_category = $_POST['item_category'];
         $restock = $_POST['restock'];
+        $unit = $_POST['unit'];
+        $acron = $_POST['acron'];
     
         // Check if a product with the same name and item_details exists
         $existing_product_query = "SELECT * FROM products WHERE item_name = '$item_name' AND item_details = '$item_details'";
@@ -80,8 +82,8 @@
             }
     
             // Insert a new entry
-            $insert_query = "INSERT INTO products (item_name, actual_price, retail_price, product_stock, item_category, item_details, warning_stock) 
-                             VALUES ('$item_name', $actual_price, $retail_price, $product_stock, '$item_category', '$item_details', '$restock')";
+            $insert_query = "INSERT INTO products (item_name, actual_price, retail_price, product_stock, item_category, item_details, warning_stock, product_unit, acronym) 
+                             VALUES ('$item_name', $actual_price, $retail_price, $product_stock, '$item_category', '$item_details', '$restock', '$unit', '$acron')";
     
             if (mysqli_query($conn, $insert_query)) {
                 // echo "New product added successfully.";
@@ -221,8 +223,26 @@
                                         <div class="modal-body">
                                         <form action="" method="POST">
                                             <div class="mb-3">
-                                                <label for="item_name" class="form-label">Item Name</label>
-                                                <input type="text" class="form-control" id="item_name" name="item_name" required>
+                                                <div class="row">
+                                                    <div class="col-md-6 col-sm-6">
+                                                        <label for="item_name" class="form-label">Item Name</label>
+                                                        <input type="text" class="form-control" id="item_name" name="item_name" required>
+                                                    </div>
+                                                    <div class="col-md-3 col-sm-3">
+                                                        <label for="unit" class="form-label">Product Unit</label>
+                                                        <select class="form-control" name="unit" required>
+                                                            <option selected disabled></option>
+                                                            <option value="M">Meter</option>
+                                                            <option value="PC">Piece</option>
+                                                            <option value="KG">Kilo</option>
+                                                            <option value="L">Liter</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-3 col-sm-3">
+                                                        <label for="acron" class="form-label">Acronym</label>
+                                                        <input type="text" class="form-control" name="acron" required>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
@@ -325,7 +345,7 @@
                                 <td><?php echo $row['item_name']; ?></td>
                                 <td><?php echo CURRENCY . number_format($row['actual_price'],2); ?></td>
                                 <td><?php echo CURRENCY . number_format($row['retail_price'],2); ?></td>
-                                <td><?php echo $row['product_stock']; ?></td>
+                                <td><?php echo $row['product_stock'] .' '. $row['product_unit']; ?></td>
                                 <td><?php echo $row['item_category']; ?></td>
                                 <td><?php echo $row['item_details']; ?></td>
                                 <td><?php echo $row['date_added']; ?></td>

@@ -127,7 +127,7 @@
         $buss = $_POST['buss_style'];
         
         // Generate a single sales_transaction_code for the entire checkout batch
-        $sales_transaction_code = generateSalesTransactionCode();
+        $sales_transaction_code = generateSalesTransactionCode($conn);
         
         // Calculate total profit for all products in the cart
         $total_profit = 0;
@@ -283,7 +283,7 @@
                             <tr>
                                 <td><?php echo $row['item_name']; ?></td>
                                 <td><?php echo CURRENCY . number_format($row['retail_price'], 2); ?></td>
-                                <td><?php echo $row['product_stock']; ?></td>
+                                <td><?php echo $row['product_stock'] . $row['product_unit']; ?></td>
                                 <td><?php echo $row['item_category']; ?></td>
                                 <td><?php echo $row['item_details']; ?></td>
                                 <td></td>
