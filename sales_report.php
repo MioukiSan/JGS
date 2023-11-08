@@ -112,8 +112,7 @@
                                     COUNT(DISTINCT DATE(s.sale_date)) AS salexdate,
                                     DATE(s.sale_date) as date_order,
                                     SUM(s.total_amt) as total_sale,
-                                    SUM(s.product_profit) as semi_gross_profit,
-                                    (SELECT SUM(base_salary) FROM employee_management) as total_base_salary
+                                    SUM(s.product_profit) as semi_gross_profit
                                     FROM sales s
                                     GROUP BY date_order
                                     ORDER BY date_order DESC";
@@ -126,8 +125,7 @@
                                     MAX(DATE(s.sale_date)) as week_end_date,
                                     COUNT(DISTINCT DATE(s.sale_date)) as salexdate,
                                     SUM(s.total_amt) as total_sale,
-                                    SUM(s.product_profit) as semi_gross_profit,
-                                    (SELECT SUM(base_salary) FROM employee_management) as total_base_salary
+                                    SUM(s.product_profit) as semi_gross_profit
                                     FROM sales s
                                     GROUP BY week_number
                                     ORDER BY week_number DESC";
@@ -141,8 +139,7 @@
                                     DATE_FORMAT(LAST_DAY(s.sale_date), '%Y-%m-%d') AS month_end,
                                     COUNT(DISTINCT DATE(s.sale_date)) AS salexdate,
                                     SUM(s.total_amt) AS total_sale,
-                                    SUM(s.product_profit) AS semi_gross_profit,
-                                    (SELECT SUM(base_salary) FROM employee_management) AS total_base_salary
+                                    SUM(s.product_profit) AS semi_gross_profit
                                     FROM sales s
                                     GROUP BY month_year
                                     ORDER BY month_year DESC";
@@ -158,7 +155,6 @@
                                     COUNT(DISTINCT DATE(s.sale_date)) AS salexdate,
                                     SUM(s.total_amt) AS total_sale,
                                     SUM(s.product_profit) AS semi_gross_profit,
-                                    (SELECT SUM(base_salary) FROM employee_management) AS total_base_salary,
                                     CONCAT(YEAR(s.sale_date), '-01-01') AS year_start,
                                     CONCAT(YEAR(s.sale_date), '-12-31') AS year_end
                                     FROM sales s
@@ -172,8 +168,7 @@
                                     COUNT(DISTINCT DATE(s.sale_date)) AS salexdate,
                                     DATE(s.sale_date) as date_order,
                                     SUM(s.total_amt) as total_sale,
-                                    SUM(s.product_profit) as semi_gross_profit,
-                                    (SELECT SUM(base_salary) FROM employee_management) as total_base_salary
+                                    SUM(s.product_profit) as semi_gross_profit
                                     FROM sales s
                                     GROUP BY date_order 
                                     ORDER BY date_order DESC";
@@ -183,23 +178,9 @@
                                 foreach($resultsales as $res) {
                                     $salary = 0;
                                     
-                                    if (isset($_POST['weekly'])) {
+                                    if(isset($_POST['weekly'])){
                                         $week_start = $res['week_start_date'];
                                         $week_end = $res['week_end_date'];
-                                        
-                                        // Fetch all transaction IDs between the specified date range
-                                        $transactionIds = array();
-                                        $transactionIdsSQL = "SELECT DISTINCT s.transaction_id
-                                            FROM sales s
-                                            WHERE s.sale_date BETWEEN '$week_start' AND '$week_end'";
-                                        $resultTransactionIds = mysqli_query($conn, $transactionIdsSQL);
-                                        if ($resultTransactionIds) {
-                                            while ($row = mysqli_fetch_assoc($resultTransactionIds)) {
-                                                $transactionIds[] = $row['transaction_id'];
-                                            }
-                                        }
-                                    
-                                        // Use the transaction IDs to calculate salary
                                         $attendanceSQL = "SELECT
                                             DATE(s.sale_date) AS date,
                                             SUM(e.base_salary * (CASE WHEN a.attendance_status = 'present' THEN 1 ELSE 0 END)) AS total_base_salary
@@ -207,8 +188,6 @@
                                             employee_management e
                                             LEFT JOIN attendance a ON e.employee_id = a.employee_id AND a.date BETWEEN '$week_start' AND '$week_end'
                                             LEFT JOIN sales s ON e.employee_id = s.employee_id AND DATE(s.sale_date) BETWEEN '$week_start' AND '$week_end'
-                                        WHERE
-                                            s.sales_transaction_code IN ('" . implode("','", $transactionIds) . "')
                                         GROUP BY
                                             DATE(s.sale_date)
                                         ORDER BY
@@ -217,74 +196,81 @@
                                         if ($resultAttendance) {
                                             while ($row = mysqli_fetch_assoc($resultAttendance)) {
                                                 $salary += $row['total_base_salary'];
+                                                }
                                             }
-                                        }
                                     }
-                                    elseif(isset($_POST['monthly'])){
+                                    elseif (isset($_POST['monthly'])) {
                                         $month_start = $res['month_start'];
                                         $month_end = $res['month_end'];
+                                    
                                         $attendanceSQL = "SELECT
-                                            DATE(s.sale_date) AS date,
-                                            SUM(e.base_salary * (CASE WHEN a.attendance_status = 'present' THEN 1 ELSE 0 END)) AS total_base_salary
-                                        FROM
-                                            employee_management e
-                                            LEFT JOIN attendance a ON e.employee_id = a.employee_id AND a.date BETWEEN '$month_start' AND '$month_end'
-                                            LEFT JOIN sales s ON e.employee_id = s.employee_id AND DATE(s.sale_date) BETWEEN '$month_start' AND '$month_end'
-                                        GROUP BY
-                                            DATE(s.sale_date)
-                                        ORDER BY
-                                            DATE(s.sale_date) DESC";
+                                                            DATE(s.sale_date) AS date,
+                                                            SUM(a.salary * (CASE WHEN a.attendance_status = 'present' THEN 1 ELSE 0 END)) AS total_salary
+                                                        FROM
+                                                            attendance a
+                                                            LEFT JOIN sales s ON a.employee_id = s.employee_id AND DATE(s.sale_date) BETWEEN '$month_start' AND '$month_end'
+                                                        WHERE
+                                                            a.date BETWEEN '$month_start' AND '$month_end'
+                                                        GROUP BY
+                                                            DATE(s.sale_date)
+                                                        ORDER BY
+                                                            DATE(s.sale_date) DESC";
+                                        
                                         $resultAttendance = mysqli_query($conn, $attendanceSQL);
+                                        
                                         if ($resultAttendance) {
                                             while ($row = mysqli_fetch_assoc($resultAttendance)) {
-                                                $salary += $row['total_base_salary'];
-                                                }
+                                                $salary += $row['total_salary'];
                                             }
-                                    }elseif(isset($_POST['annual'])){
+                                        }
+                                    } elseif (isset($_POST['annual'])) {
                                         $year_start = $res['year_start'];
                                         $year_end = $res['year_end'];
+                                    
                                         $attendanceSQL = "SELECT
-                                            DATE(s.sale_date) AS date,
-                                            SUM(e.base_salary * (CASE WHEN a.attendance_status = 'present' THEN 1 ELSE 0 END)) AS total_base_salary
-                                        FROM
-                                            employee_management e
-                                            LEFT JOIN attendance a ON e.employee_id = a.employee_id AND a.date BETWEEN '$year_start' AND '$year_end'
-                                            LEFT JOIN sales s ON e.employee_id = s.employee_id AND DATE(s.sale_date) BETWEEN '$year_start' AND '$year_end'
-                                        GROUP BY
-                                            DATE(s.sale_date)
-                                        ORDER BY
-                                            DATE(s.sale_date) DESC";
+                                                            DATE(s.sale_date) AS date,
+                                                            SUM(a.salary * (CASE WHEN a.attendance_status = 'present' THEN 1 ELSE 0 END)) AS total_salary
+                                                        FROM
+                                                            attendance a
+                                                            LEFT JOIN sales s ON a.employee_id = s.employee_id AND DATE(s.sale_date) BETWEEN '$year_start' AND '$year_end'
+                                                        WHERE
+                                                            a.date BETWEEN '$year_start' AND '$year_end'
+                                                        GROUP BY
+                                                            DATE(s.sale_date)
+                                                        ORDER BY
+                                                            DATE(s.sale_date) DESC";
+                                    
                                         $resultAttendance = mysqli_query($conn, $attendanceSQL);
+                                    
                                         if ($resultAttendance) {
                                             while ($row = mysqli_fetch_assoc($resultAttendance)) {
-                                                $salary += $row['total_base_salary'];
-                                                }
+                                                $salary += $row['total_salary'];
                                             }
-                                    }else{
-                                    $date =$res['date_order'];
-                                    $attendanceSQL = "SELECT
-                                                        e.employee_id,
-                                                        e.base_salary,
-                                                        '$date' AS date,
-                                                        CASE WHEN a.attendance_status = 'present' THEN 1 ELSE 0 END AS is_present,
-                                                        e.base_salary * (CASE WHEN a.attendance_status = 'present' THEN 1 ELSE 0 END) AS total_base_salary
-                                                    FROM
-                                                        employee_management e
-                                                    LEFT JOIN
-                                                        attendance a
-                                                    ON
-                                                        e.employee_id = a.employee_id
-                                                        AND a.date = '$date'";
-                                    $resultAttendance = mysqli_query($conn, $attendanceSQL);
-                                
-                                    if ($resultAttendance) {
-                                        while ($row = mysqli_fetch_assoc($resultAttendance)) {
-                                            $salary += $row['total_base_salary'];
+                                        }
+                                    } else {
+                                        $date = $res['date_order'];
+                                        $attendanceSQL = "SELECT
+                                                            a.employee_id,
+                                                            a.salary,
+                                                            '$date' AS date,
+                                                            CASE WHEN a.attendance_status = 'present' THEN 1 ELSE 0 END AS is_present,
+                                                            a.salary * (CASE WHEN a.attendance_status = 'present' THEN 1 ELSE 0 END) AS total_salary
+                                                        FROM
+                                                            attendance a
+                                                        WHERE
+                                                            a.date = '$date'";
+                                    
+                                        $resultAttendance = mysqli_query($conn, $attendanceSQL);
+                                    
+                                        if ($resultAttendance) {
+                                            while ($row = mysqli_fetch_assoc($resultAttendance)) {
+                                                $salary += $row['total_salary'];
                                             }
                                         }
                                     }
-
-                                        $filter = $res['semi_gross_profit'] - $salary;
+                                    
+                                    $filter = $res['semi_gross_profit'] - $salary;
+                                    
                             ?>
                                 <tr>
                                     <td>

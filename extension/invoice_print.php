@@ -22,11 +22,11 @@ require_once '../includes/db_conn_in_session.php';
             $buss_style = $row['buss_style'];
             $tin = $row['tin'];
 
-            $get_info = "SELECT username, user_type FROM users WHERE user_id = '$employee_id'";
+            $get_info = "SELECT fullname, user_type FROM users WHERE user_id = '$employee_id'";
             $result_info = query($conn, $get_info);
 
             foreach($result_info as $res){
-                $username = $res['username'];
+                $fullname = $res['fullname'];
                 $usertype = $res['user_type'];
         }
 
@@ -198,7 +198,7 @@ require_once '../includes/db_conn_in_session.php';
 
         $pdf->SetFont('Arial', '', 6);
         $pdf->Cell(0, 5, 'TRIPLE J Printing Press, Leg. City                             ________________________________');
-        $pdf->Cell(-8, 5, '' . $username . '-' . $usertype  , 0, 1, 'R');
+        $pdf->Cell(-8, 5, '' . $fullname . '-' . $usertype  , 0, 1, 'R');
         $pdf->Cell(0, 0, 'TIN: 144-888-113-000 T (052) 201-9722                          Cashier/Authorized Representative');
         $pdf->Ln(5);
 

@@ -152,9 +152,16 @@
                     $total_profit += $product_profit;
         
                     // Insert data into the sales table for each product with the same transaction code
-                    $insert_query = "INSERT INTO sales (sales_transaction_code, user_id, product_id, total_amt, product_profit, product_qty, sale_date, employee_id, payment_method, customer_name, cust_address, tin, buss_style)
-                 VALUES ('$sales_transaction_code', $user_id, $product_id, $retail_price * $order_qty, '$product_profit', $order_qty, NOW(), $user_id, '$payment_method', '$customer', '$customer_address', '$tin', '$buss')";
+                    $insert_query = "INSERT INTO sales (sales_transaction_code, user_id, product_id, total_amt, product_profit, product_qty, sale_date, employee_id, payment_method, customer_name, cust_address, tin, buss_style, ref_number)
+                    VALUES ('$sales_transaction_code', $user_id, $product_id, $retail_price * $order_qty, '$product_profit', $order_qty, NOW(), $user_id, '$payment_method', '$customer', '$customer_address', '$tin', '$buss', NULL)";
                     
+                    if ($payment_method === 'Gcash' || $payment_method === 'PayMaya') {
+                        $ref_number = isset($_POST['reference_number']) ? $_POST['reference_number'] : '';
+                        $ref_number = mysqli_real_escape_string($conn, $ref_number);
+                        $insert_query = "INSERT INTO sales (sales_transaction_code, user_id, product_id, total_amt, product_profit, product_qty, sale_date, employee_id, payment_method, customer_name, cust_address, tin, buss_style, ref_number)
+                        VALUES ('$sales_transaction_code', $user_id, $product_id, $retail_price * $order_qty, '$product_profit', $order_qty, NOW(), $user_id, '$payment_method', '$customer', '$customer_address', '$tin', '$buss', '$ref_number')";
+                    }
+    
                     if (!mysqli_query($conn, $insert_query)) {
                         echo "Error inserting data into sales table: " . mysqli_error($conn);
                     }
@@ -184,18 +191,18 @@
     if (isset($_POST['reset'])) {
         $user_id = $_POST['user_id'];
         $delete_query = "DELETE FROM cart WHERE user_id = ?";
-   
+       
         $stmt = mysqli_prepare($conn, $delete_query);
         mysqli_stmt_bind_param($stmt, "i", $user_id);
-    
+        
         if (mysqli_stmt_execute($stmt)) {
             echo "<script>alert('Cart items for user with user_id $user_id(YOUR ID) have been deleted.')</script>";
         } else {
             echo "Error deleting cart items: " . mysqli_error($conn);
         }
-    
+        
         mysqli_stmt_close($stmt);
-    }
+    }    
     
     
 ?>
@@ -210,6 +217,16 @@
 <body class="bg-light pad">
     <?php include_once './includes/side_navbar.php'; ?>
     <div class="container">
+        <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+            <div id="myToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        Product stock is not enough. Need to restock.
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
         <div class="row pt-4">
         <div class="col-md-7 col-sm-7 bg-white shadow-sm border" style="font-size: 13px;">
                 <div class="row">
@@ -283,7 +300,7 @@
                             <tr>
                                 <td><?php echo $row['item_name']; ?></td>
                                 <td><?php echo CURRENCY . number_format($row['retail_price'], 2); ?></td>
-                                <td><?php echo $row['product_stock'] . $row['product_unit']; ?></td>
+                                <td><?php echo $row['product_stock'] .' '. $row['product_unit']; ?></td>
                                 <td><?php echo $row['item_category']; ?></td>
                                 <td><?php echo $row['item_details']; ?></td>
                                 <td></td>
@@ -330,4 +347,20 @@
         </div>
     </div>
 </body>
+<script>
+// Check for the session variable set in PHP
+<?php
+if (isset($_SESSION['show_toast']) && $_SESSION['show_toast']) {
+    // JavaScript to display the toast
+    echo '
+    document.addEventListener("DOMContentLoaded", function() {
+        var myToast = document.getElementById("myToast");
+        var bsToast = new bootstrap.Toast(myToast);
+        bsToast.show();
+    });
+    ';
+    unset($_SESSION['show_toast']); // Reset the session variable
+}
+?>
+</script>
 </html>

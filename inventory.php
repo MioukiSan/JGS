@@ -139,6 +139,8 @@
         $new_product_stock = $_POST['new_product_stock'];
         $new_item_status = $_POST['new_item_status'];
         $new_item_details = $_POST['new_item_details'];
+        $new_acronym = $_POST['acron'];
+        $new_unit = $_POST['unit'];
     
         // Update the product details in the database
         $update_query = "UPDATE products 
@@ -147,7 +149,9 @@
                              retail_price = $new_retail_price, 
                              product_stock = $new_product_stock, 
                              item_status = '$new_item_status', 
-                             item_details = '$new_item_details' 
+                             item_details = '$new_item_details',
+                             acronym = '$new_acronym',
+                             product_unit = '$new_unit'
                          WHERE product_id = $product_id";
     
         if (mysqli_query($conn, $update_query)) {
@@ -297,7 +301,7 @@
                     <table class="table table-responsive">
                         <thead class="table-info">
                             <tr>
-                                <th>Product ID</th>
+                                <th></th>
                                 <th>Item Name</th>
                                 <th>Actual Price</th>
                                 <th>Retail Price</th>
@@ -341,7 +345,7 @@
                                 foreach ($result as $items => $row) {
                             ?>
                             <tr class="<?php if($row['product_stock'] <= $row['warning_stock'] ){ echo 'table-danger';}else{} ?>">
-                                <td><?php echo $row['product_id']; ?></td>
+                                <td><?php echo $row['acronym']; ?></td>
                                 <td><?php echo $row['item_name']; ?></td>
                                 <td><?php echo CURRENCY . number_format($row['actual_price'],2); ?></td>
                                 <td><?php echo CURRENCY . number_format($row['retail_price'],2); ?></td>
@@ -362,20 +366,49 @@
                                                     <div class="modal-body">
                                                         <form method="POST" action="">
                                                             <input type="hidden" name="product_id" value="<?php echo $row['product_id']; ?>">
-                                                            <div class="mb-3">
-                                                                <label for="new_item_name" class="form-label">Product Name</label>
-                                                                <input type="text" class="form-control" name="new_item_name" id="new_item_name" value="<?php echo $row['item_name']; ?>" required>
-                                                            <div class="mb-3">
-                                                                <label for="new_actual_price" class="form-label">Actual Price</label>
-                                                                <input type="number" class="form-control" name="new_actual_price" id="new_actual_price" value="<?php echo $row['actual_price']; ?>" required>
+                                                            <div class="row">
+                                                                <div class="col-md-7">
+                                                                    <div class="mb-3">
+                                                                        <label for="new_item_name" class="form-label">Product Name</label>
+                                                                        <input type="text" class="form-control" name="new_item_name" id="new_item_name" value="<?php echo $row['item_name']; ?>" required>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-5">
+                                                                    <label for="acron" class="form-label">Acronym</label>
+                                                                    <input type="text" class="form-control" name="acron" value="<?php echo $row['acronym'] ?>" required>
+                                                                </div>
                                                             </div>
-                                                            <div class="mb-3">
-                                                                <label for="new_retail_price" class="form-label">Retail Price</label>
-                                                                <input type="number" class="form-control" name="new_retail_price" id="new_retail_price" value="<?php echo $row['retail_price']; ?>" required>
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <label for="new_actual_price" class="form-label">Actual Price</label>
+                                                                        <input type="number" class="form-control" name="new_actual_price" id="new_actual_price" value="<?php echo $row['actual_price']; ?>" required>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <label for="new_retail_price" class="form-label">Retail Price</label>
+                                                                        <input type="number" class="form-control" name="new_retail_price" id="new_retail_price" value="<?php echo $row['retail_price']; ?>" required>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div class="mb-3">
-                                                                <label for="new_product_stock" class="form-label">Product Stock</label>
-                                                                <input type="number" class="form-control" name="new_product_stock" id="new_product_stock" value="<?php echo $row['product_stock']; ?>" required>
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <label for="new_product_stock" class="form-label">Product Stock</label>
+                                                                        <input type="number" class="form-control" name="new_product_stock" id="new_product_stock" value="<?php echo $row['product_stock']; ?>" required>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <label for="unit" class="form-label">Product Unit</label>
+                                                                    <select class="form-control" name="unit" required>
+                                                                        <option selected disabled></option>
+                                                                        <option value="M">Meter</option>
+                                                                        <option value="PC">Piece</option>
+                                                                        <option value="KG">Kilo</option>
+                                                                        <option value="L">Liter</option>
+                                                                    </select>
+                                                                </div>
                                                             </div>
                                                             <div class="mb-3">
                                                                 <label for="new_item_details" class="form-label">Product Details</label>

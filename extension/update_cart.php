@@ -26,7 +26,9 @@ if (mysqli_stmt_num_rows($stmt_cart) == 1) {
         // If reducing order_qty, calculate the maximum order_qty that can be reduced
         $max_order_qty = max($qty_difference, -$order_qty_cart);
     }
-
+    if ($max_order_qty != $qty_difference) {
+        $_SESSION['show_toast'] = true;
+    } 
     // Update the cart with the new order_qty
     $new_order_qty = $order_qty_cart + $max_order_qty;
     $sql_update_cart = "UPDATE cart SET order_qty = ? WHERE cart_id = ?";

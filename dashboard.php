@@ -35,32 +35,34 @@
     <div class="container">
         <div class="row pt-4">
             <div class="col-xl-4 col-md-4">
-            <?php
-                $rtc = date('Y-m-d');
-                $sql_today = "SELECT 
-                    DATE(sale_date) as date_order,
-                    SUM(s.total_amt) AS total_sale,
-                    SUM(s.product_profit) AS semi_gross_profit,
-                    (SELECT SUM(base_salary) FROM employee_management) AS total_base_salary
-                    FROM sales s
-                    WHERE DATE(s.sale_date) = ? 
-                    GROUP BY date_order
-                    ORDER BY date_order DESC";
-                $res_today = query($conn, $sql_today, array($rtc));
-                if (!empty($res_today)) {
-                    $today = $res_today[0];
-                    $targettoday = 10000;
-                    $today_perc = ($today['total_sale'] / $targettoday) * 100;
-                    $profit = $today['semi_gross_profit'] - $today['total_base_salary'];
-                } else {
-                    $today = array(
-                        'total_sale' => 0, 
-                        'total_base_salary' => 0,
-                        'semi_gross_profit' => 0,
-                    );
-                    $today_perc = 0;
-                    $profit = 0;
-                }
+                <?php
+                    $rtc = date('Y-m-d');
+                    $sql_today = "SELECT 
+                        DATE(s.sale_date) as date_order,
+                        SUM(s.total_amt) AS total_sale,
+                        SUM(s.product_profit) AS semi_gross_profit,
+                        (SELECT SUM(a.salary) FROM attendance a WHERE DATE(a.date) = ?) AS total_salary
+                        FROM sales s
+                        WHERE DATE(s.sale_date) = ? 
+                        GROUP BY date_order
+                        ORDER BY date_order DESC";
+
+                    $res_today = query($conn, $sql_today, array($rtc, $rtc));
+
+                    if (!empty($res_today)) {
+                        $today = $res_today[0];
+                        $targettoday = 10000;
+                        $today_perc = ($today['total_sale'] / $targettoday) * 100;
+                        $profit = $today['semi_gross_profit'] - $today['total_salary'];
+                    } else {
+                        $today = array(
+                            'total_sale' => 0, 
+                            'total_salary' => 0,
+                            'semi_gross_profit' => 0,
+                        );
+                        $today_perc = 0;
+                        $profit = 0;
+                    }
                 ?>
                 <div class="card shadow-sm py-3">
                     <div class="card-body">
@@ -86,14 +88,13 @@
                 $currentYear = date('Y');
                 $currentMonth = date('m');
                 $startOfMonth = "{$currentYear}-{$currentMonth}-01";
-
                 $endOfMonth = date('Y-m-t', strtotime($startOfMonth));
 
                 $revenueSQL = "SELECT
                     DATE_FORMAT(s.sale_date, '%Y-%m') AS month_year,
                     SUM(s.total_amt) AS total_sale,
                     SUM(s.product_profit) AS semi_gross_profit,
-                    (SELECT SUM(base_salary) FROM employee_management) AS total_base_salary
+                    (SELECT SUM(a.salary) FROM attendance a WHERE DATE(a.date) BETWEEN '$startOfMonth' AND '$endOfMonth') AS total_salary
                     FROM sales s
                     WHERE s.sale_date BETWEEN '$startOfMonth' AND '$endOfMonth'
                     GROUP BY month_year
@@ -101,7 +102,8 @@
 
                 $revenuemonth = query($conn, $revenueSQL);
                 $salesMONTH = 0;
-                foreach($revenuemonth as $month){
+
+                foreach ($revenuemonth as $month) {
                     $salesMONTH = $month['total_sale'];
                 }
             ?>
@@ -249,7 +251,43 @@
                 </div>
              </div>
             <div class="col-xl-4 col-lg-4">
-                <div class="card bg-white shadow-sm">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="text-center" style="background-color: #1C387C; color: white;">PRODUCTS</h4>
+                        <div class="table table-responsive-sm text-center">
+                            <table class="table caption-top table-striped">
+                                <caption>RESTOCK NEEDED</caption>
+                                <thead class="table-primary">
+                                    <tr>
+                                        <td>NAME</td>
+                                        <td>STOCK</td>
+                                        <td></td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                        $restock = "SELECT * FROM products WHERE product_stock <= warning_stock";
+                                        $restockprod = mysqli_query($conn, $restock);
+                                        
+                                        while($resultprod = mysqli_fetch_assoc($restockprod)){
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $resultprod['item_name'] ?></td>
+                                        <td><?php echo $resultprod['product_stock'] ?></td>
+                                        <td>
+                                            <form action="inventory.php" method="POST">
+                                                <input type="hidden" name="product_id" value="<?php echo $resultprod['product_id'] ?>">
+                                                <button class="btn" type="submit" name="navigate"><ion-icon name="create-outline"></ion-icon></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-3 bg-white shadow-sm">
                     <div class="card-body">
                         <h3 class="text-center" style="background-color: #1C387C; color: white;">GENERATE DOCUMENTS</h3>
                             <h5 style="color: #1C387C; padding-top: 1em;">GENERATE SALES REPORT</h5>
@@ -272,8 +310,44 @@
                                 }
                             ?>
 
-                            <form action="./extension/generate_rep.php" method="POST" target="_blank">
+                            <form action="./extension/generate_sales_rep.php" method="POST" target="_blank">
                                 <?php if($showViewButton): ?>
+                                <div class="input-group mb-3 text-center">
+                                    <input type="text" name="start_date" class="form-control" value="<?php echo $start_date; ?>" aria-label="Username">
+                                    <span class="input-group-text">BETWEEN</span>
+                                    <input type="text" name="end_date" class="form-control" value="<?php echo $end_date; ?>" aria-label="Server">
+                                </div>
+                                <div class="text-center">
+                                    <button type="submit" id="invoiceRep" class="text-center btn btn-secondary1" name="viewrep"><i class='bx bxs-printer'></i> VIEW</button>
+                                    <script>
+                                        document.getElementById('invoiceRep').addEventListener('submit', function (e) {
+                                        });
+                                    </script>
+                                </div>
+                                <?php endif; ?>
+                            </form>
+                            <h5 style="color: #1C387C;">FINANCIAL REPORT</h5>
+                            <form action="" method="POST">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Between</span>
+                                    <input type="date" name="start_date" class="form-control" required>
+                                    <span class="input-group-text"> and </span>
+                                    <input type="date" name="end_date" class="form-control" required>
+                                    <button type="submit" class="text-center btn btn-secondary1" name="generatefi">GENERATE</button>
+                                </div>
+                            </form>
+                            <?php
+                                if(isset($_POST['generatefi'])){
+                                    $start_date = $_POST['start_date'];
+                                    $end_date = $_POST['end_date'];
+                                    $showViewButton2 = true;
+                                } else {
+                                    $showViewButton2 = false; 
+                                }
+                            ?>
+
+                            <form action="./extension/generate_financial_rep.php" method="POST" target="_blank">
+                                <?php if($showViewButton2): ?>
                                 <div class="input-group mb-3 text-center">
                                     <input type="text" name="start_date" class="form-control" value="<?php echo $start_date; ?>" aria-label="Username">
                                     <span class="input-group-text">BETWEEN</span>
@@ -325,42 +399,6 @@
                                 </script>
                                 <?php endif; ?>
                             </form>
-                        </div>
-                    </div>
-                    <div class="card mt-4 shadow-sm">
-                        <div class="card-body">
-                            <h4 class="text-center" style="background-color: #1C387C; color: white;">PRODUCTS</h4>
-                            <div class="table table-responsive-sm text-center">
-                                <table class="table caption-top table-striped">
-                                    <caption>RESTOCK NEEDED</caption>
-                                    <thead class="table-primary">
-                                        <tr>
-                                            <td>NAME</td>
-                                            <td>STOCK</td>
-                                            <td></td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php 
-                                            $restock = "SELECT * FROM products WHERE product_stock <= warning_stock";
-                                            $restockprod = mysqli_query($conn, $restock);
-                                            
-                                            while($resultprod = mysqli_fetch_assoc($restockprod)){
-                                        ?>
-                                        <tr>
-                                            <td><?php echo $resultprod['item_name'] ?></td>
-                                            <td><?php echo $resultprod['product_stock'] ?></td>
-                                            <td>
-                                                <form action="inventory.php" method="POST">
-                                                    <input type="hidden" name="product_id" value="<?php echo $resultprod['product_id'] ?>">
-                                                    <button class="btn" type="submit" name="navigate"><ion-icon name="create-outline"></ion-icon></button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                        <?php } ?>
-                                    </tbody>
-                                </table>
-                            </div>
                         </div>
                     </div>
                 </div>

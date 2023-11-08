@@ -86,7 +86,23 @@
                                         <button type="submit" class="btn btn-sm" name="delete-cart"><i class='bx bx-minus-circle'></i></button>
                                     </form>
                                 </td>
-                                <td><?php echo $row['product_name']; ?></td>
+                                <td>
+                                    <?php
+                                        $unitsql = "SELECT product_unit FROM products WHERE product_id = {$row['product_id']}";
+                                        $unitres = mysqli_query($conn, $unitsql);
+
+                                        if ($unitres) {
+                                            $unitData = mysqli_fetch_assoc($unitres); // Fetch the result as an associative array
+                                            if ($unitData) {
+                                                echo $row['product_name'] . '|' . $unitData['product_unit'];
+                                            } else {
+                                                echo "No unit data found for the product.";
+                                            }
+                                        } else {
+                                            echo "Error fetching unit data: " . mysqli_error($conn);
+                                        }
+                                    ?>
+                                </td>
                                 <td><?php echo number_format($row['product_price'],2); ?></td>
                                 <td>
                                 <form action="./extension/update_cart.php" method="POST">
@@ -122,12 +138,28 @@
                     <div class="row row-divider">
                         <div class="col-md-4 mb-2 mt-0">
                             <label for="payment_method">Payment Method:</label>
-                            <select class="form-control" id="payment_method" name="payment_method" required>
+                            <select class="form-control" id="payment_method" name="payment_method" required onchange="showReferenceNumberInput()">
                                 <option value="Cash">Cash</option>
                                 <option value="Gcash">Gcash</option>
                                 <option value="PayMaya">PayMaya</option>
                             </select>
                         </div>
+                        <div class="col-md-4 mb-2 mt-0" id="referenceNumberInput" style="display: none;">
+                            <label for="reference_number">Reference Number:</label>
+                            <input type="text" class="form-control" id="reference_number" name="reference_number">
+                        </div>
+                        <script>
+                            function showReferenceNumberInput() {
+                            var paymentMethod = document.getElementById("payment_method");
+                                var referenceNumberInput = document.getElementById("referenceNumberInput");
+
+                                if (paymentMethod.value === "Gcash" || paymentMethod.value === "PayMaya") {
+                                    referenceNumberInput.style.display = "block";
+                                } else {
+                                    referenceNumberInput.style.display = "none";
+                                }
+                            }
+                        </script>
                         <div class="col-md-4 mb-2 mt-0">
                             <label for="tin" class="form-label">TIN:</label>
                             <input type="text" class="form-control form-control-sm" id="tin" name="tin">
