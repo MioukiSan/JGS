@@ -25,11 +25,11 @@ require_once '../includes/db_conn_in_session.php';
             $buss_style = $row['buss_style'];
             $tin = $row['tin'];
 
-            $get_info = "SELECT username, user_type FROM users WHERE user_id = '$employee_id'";
+            $get_info = "SELECT fullname, user_type FROM users WHERE user_id = '$employee_id'";
             $result_info = query($conn, $get_info);
 
             foreach($result_info as $res){
-                $username = $res['username'];
+                $fullname = $res['fullname'];
                 $usertype = $res['user_type'];
         }
 
@@ -53,7 +53,7 @@ require_once '../includes/db_conn_in_session.php';
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(69, 8, '', 0);
         $pdf->SetTextColor(255, 0, 0);
-        $pdf->SetFont('Courier', 'B', 12);
+        $pdf->SetFont('Courier', 'B', 10);
         $pdf->Cell(59, 8, $transaction_code, 0);
         $pdf->SetTextColor(0, 0, 0);
         $pdf->Ln(10);
@@ -179,20 +179,37 @@ require_once '../includes/db_conn_in_session.php';
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(72, 5, '                                  Total Amount Due', 1);
         $pdf->Cell(21, 5, 'Php' . number_format($total, 2), 1);
-        $pdf->Ln(15);
-
-
-        $pdf->SetFont('Arial', '', 7);
-        $pdf->Cell(0, 0, '____________________________', 0, 1, 'R');
-        $pdf->Cell(0, 0, $username . '-' . $usertype  , 0, 1, 'R');
-        $pdf->Cell(0, 7, 'Cashier/Authorized Representative', 0, 1, 'R');
         $pdf->Ln(10);
+
+
+        $pdf->SetFont('Arial', '' , 5);
+        $pdf->Cell(0, 0, '25 Bklts. (50x3) 1251-2500');
+        $pdf->Ln();
+
+        $pdf->SetFont('Arial', '' , 5);
+        $pdf->Cell(0, 4, 'BIR Authority: to Print No. 067AU20220000005303', 0);
+        $pdf->Ln();
+        
+        $pdf->SetFont('Arial', '' , 5);
+        $pdf->Cell(0, 0, 'Date Issued: 10-05-2022');
+        $pdf->Ln();
+
+        $pdf->SetFont('Arial', '', 6);
+        $pdf->Cell(0, 5, 'TRIPLE J Printing Press, Leg. City                             ________________________________');
+        $pdf->Cell(-8, 5, '' . $fullname . '-' . $usertype  , 0, 1, 'R');
+        $pdf->Cell(0, 0, 'TIN: 144-888-113-000 T (052) 201-9722                          Cashier/Authorized Representative');
+        $pdf->Ln(5);
+
+        $pdf->SetFont('Arial', '' , 5);
+        $pdf->Cell(0, 0, 'Printers Apcreditation No. 067MP20190000000003 Date Issued: 01-23-2019
+        Expiry Date: 01-23-2024');
+        $pdf->Ln();
         //lines
         $pdf->Line(74, 31.6, 103, 31.6);
         $pdf->Line(21, 31.6, 65, 31.6);
 
         $pdf->Line(17, 35.6, 65, 35.6);
-        $pdf->Line(75, 35.6, 103, 35.6);
+        $pdf->Line(88, 35.6, 103, 35.6);
 
         $pdf->Line(22, 39.6, 65, 39.6);
         $pdf->Line(86, 39.6, 103, 39.6);
