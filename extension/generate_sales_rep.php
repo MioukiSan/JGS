@@ -58,13 +58,13 @@ $pdf->SetFillColor(255, 255, 255);
 
 session_start();
 $user_id = $_SESSION['user_id'];
-$fullnameSQL = "SELECT fullname, user_type FROM users WHERE user_id = '$user_id'";
-$fullnameResult = mysqli_query($conn, $fullnameSQL);
-$fullnameRow = mysqli_fetch_assoc($fullnameResult);
-$fullname = $fullnameRow['fullname'];
-$type = $fullnameRow['user_type'];
+    $fullnameSQL = "SELECT fullname, user_type FROM users WHERE user_id = '$user_id'";
+    $fullnameResult = mysqli_query($conn, $fullnameSQL);
+    $fullnameRow = mysqli_fetch_assoc($fullnameResult);
+    $fullname = $fullnameRow['fullname'];
+    $type = $fullnameRow['user_type'];
 
-$pdf->SetFont('Arial', '', 8);
-$pdf->Cell(0, 5, 'Prepared by: ' . $fullname .' - '. $type, 0, 0, 'R');
-$pdf->Output();
+    $pdf->SetFont('Arial', '', 8);
+    $pdf->Cell(0, 5, 'Prepared by: ' . $fullname .' - '. $type, 0, 0, 'R');
+    $pdf->Output();
 ?>

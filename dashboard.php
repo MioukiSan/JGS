@@ -32,7 +32,7 @@
 </head>
 <body class="bg-light pad">
     <?php include_once './includes/side_navbar.php'; ?>
-    <div class="container">
+    <div class="container-fluid" style="padding-left: 85px;">
         <div class="row pt-4">
             <div class="col-xl-4 col-md-4">
                 <?php
@@ -159,7 +159,7 @@
                         <input type="submit" name="filter_date" value="Filter" class="btn btn-primary">
                     </div>
                 </div>
-                <div class="row dash-scroll row-cols-3 row-cols-md-5 g-4">
+                <div class="row dash-scroll row-cols-2 row-cols-md-5 g-4">
                 <?php
                     if (isset($_POST['filter_date'])) {
                         // Filter by date
@@ -202,7 +202,7 @@
                         $target = 1000;
                         $order_perc = ($res['salexdate'] / $target) * 100;
                         ?>
-                        <div class="col-xl-4 col-md-4">
+                        <div class="col-xl-4 col-md-3">
                             <div class="card mt-2 p-2">
                                 <b class="ms-2"><?php echo $res['date_order']; ?></b>
                                 <table class="table table-responsive table-hover">

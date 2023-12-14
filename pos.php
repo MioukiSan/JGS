@@ -214,18 +214,22 @@
     <title>Point of Sale</title>
     <?php include_once './includes/head.php'; ?>  
 </head>
-<body class="bg-light pad">
+<body class="bg-light" style="padding-left: 85px;">
     <?php include_once './includes/side_navbar.php'; ?>
-    <div class="container">
-        <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+    <div class="container-fluid">
+        <div class="position-fixed d-flex justify-content-center  align-items-center w-100" style="z-index: 11; margin-top: 14em;">
             <div id="myToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        Product stock is not enough. Need to restock.
+                <div class="toast-body" style="height: 10em;">
+                    <div class="d-flex flex-column mb-3 text-center">
+                        <div class="p-1">
+                            <ion-icon size="large" name="warning-outline"></ion-icon>
+                        </div>
+                        <div class="p-2">
+                            <h6>Product stock is not enough. Need to restock.</h6>
+                        </div>
                     </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
-            </div>
+            </div>  
         </div>
         <div class="row pt-4">
         <div class="col-md-7 col-sm-7 bg-white shadow-sm border" style="font-size: 13px;">
@@ -362,5 +366,25 @@ if (isset($_SESSION['show_toast']) && $_SESSION['show_toast']) {
     unset($_SESSION['show_toast']); // Reset the session variable
 }
 ?>
+</script>
+
+<script>
+    function updateCart(element) {
+        var form = element.closest('.updateCartForm');
+        var formData = new FormData(form);
+
+        fetch('./extension/update_cart.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Handle the response data if needed
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
 </script>
 </html>

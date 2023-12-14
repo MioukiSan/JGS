@@ -241,9 +241,9 @@
     <title>Employee Management</title>
     <?php include_once './includes/head.php'; ?>  
 </head>
-<body class="bg-light pad">
+<body class="bg-light" style="padding-left: 85px;">
     <?php include_once './includes/side_navbar.php'; ?> 
-    <div class="container">
+    <div class="container-fluid">
         <div class="row mt-4 border shadow-sm">
             <?php if($employ_id == 0) :?>
             <div class="col-md-6 col-sm-6 bg-white border">

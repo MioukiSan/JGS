@@ -101,7 +101,7 @@
             <i class='bx bx-purchase-tag'></i>
             <span class="nav-item">POS</span>
           </a>
-          <span class="tooltip1">Point of Sales</span>
+          <span class="tooltip1 d-flex">Point of Sales</span>
         </li>
         <li>
           <a href="inventory.php" class="nav-item1">

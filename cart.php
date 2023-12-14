@@ -105,9 +105,9 @@
                                 </td>
                                 <td><?php echo number_format($row['product_price'],2); ?></td>
                                 <td>
-                                <form action="./extension/update_cart.php" method="POST">
+                                <form class="updateCartForm">
                                     <input type="hidden" name="cart_id" value="<?php echo $row['cart_id'];?>">
-                                    <input class="form-control form-control-sm" type="number" name="order_qty" value="<?php echo $row['order_qty']; ?>" onchange="this.form.submit()">
+                                    <input class="form-control form-control-sm" type="number" name="order_qty" value="<?php echo $row['order_qty']; ?>" onchange="updateCart(this)">
                                 </form>
                                 </td>
                                 <td><?php echo CURRENCY . number_format($total_amount, 2)?></td>

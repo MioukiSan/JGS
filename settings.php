@@ -77,7 +77,7 @@
     <title>Settings</title>
     <?php include_once './includes/head.php'; ?> 
 </head>
-<body class="bg-light pad">
+<body class="bg-light" style="padding-left: 85px;">
     <?php include_once './includes/side_navbar.php'; ?>
     <div class="container con-settings">
         <div class="row mt-3">

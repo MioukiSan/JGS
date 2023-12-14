@@ -114,7 +114,7 @@ ul {
 
 .sidebar ul li .tooltip1{
   position:absolute;
-  left:120px;
+  left: 120px;
   top: 50%;
   transform:  translate(-50%, -50%);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
